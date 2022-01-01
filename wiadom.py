@@ -13,5 +13,5 @@ class Wiadom(object):
         return "ok"
 
 
-
+cherrypy.server.socket_host = '0.0.0.0'
 cherrypy.quickstart(Wiadom())
