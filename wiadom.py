@@ -4,11 +4,18 @@ from tkinter import *
 import pyttsx3
 import cherrypy
 import sys,subprocess
+import os
+from pathlib import Path
+p = Path(os.path.abspath(__file__)).parent
+w=''
 class Wiadom(object):
     @cherrypy.expose
     def wiadom(self,msg=''):
-        subprocess.Popen(f'python wiadomWindow.py "{msg}"')
-        subprocess.Popen(f'python speak.py "{msg}"')
+        wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
+        speakFilePath = os.path.join(p, 'speak.py')
+        picturesPath = p
+        subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{msg}" "{picturesPath}"')
+        subprocess.Popen(f'python{w} "{speakFilePath}" "{msg}"')
 
         return "ok"
 
