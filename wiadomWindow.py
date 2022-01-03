@@ -10,7 +10,7 @@ class GUIWindow():
     def get_random_pic(self,path):
         import glob, os,random
         os.chdir(path)
-        return os.path.join(path,random.choice(glob.glob("*.gif")+glob.glob("*.jpg")))
+        return os.path.join(path,random.choice(glob.glob("*.gif")+glob.glob("*.jpg")+glob.glob("*.png")))
 
     def open_window(self, msg, imagesPath):
         randomPic = self.get_random_pic(imagesPath)
