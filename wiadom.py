@@ -7,7 +7,7 @@ import sys,subprocess
 import os
 from pathlib import Path
 p = Path(os.path.abspath(__file__)).parent
-w=''
+w='w'
 class Wiadom(object):
     @cherrypy.expose
     def index(self):
