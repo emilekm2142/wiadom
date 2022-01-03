@@ -10,6 +10,10 @@ p = Path(os.path.abspath(__file__)).parent
 w=''
 class Wiadom(object):
     @cherrypy.expose
+    def index(self):
+        with open(os.path.join(p,"index.html")) as i:
+            return i.read()
+    @cherrypy.expose
     def wiadom(self,msg=''):
         wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
         speakFilePath = os.path.join(p, 'speak.py')
