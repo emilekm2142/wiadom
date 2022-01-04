@@ -22,7 +22,7 @@ class Wiadom(object):
         picturesPath = p
         subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{msg}" "{picturesPath}"')
         sound_path = os.path.join(p,"sounds/wiadomosc_od_szczura.wav")
-        subprocess.Popen(f'powershell -c (New-Object Media.SoundPlayer "{sound_path}").PlaySync();')
+        subprocess.Popen(f'powershell -c (New-Object Media.SoundPlayer "{sound_path}").PlaySync();', shell=True)
         sleep(1.2)
         subprocess.Popen(f'python{w} "{speakFilePath}" "{msg}"')
 
