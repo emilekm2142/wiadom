@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+from time import sleep
 import pyttsx3
 import cherrypy
 import sys,subprocess
@@ -20,7 +21,9 @@ class Wiadom(object):
         speakFilePath = os.path.join(p, 'speak.py')
         picturesPath = p
         subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{msg}" "{picturesPath}"')
-        playsound(os.path.join(p,"sounds/wiadomosc_od_szczura.wav"))
+        sound_path = os.path.join(p,"sounds/wiadomosc_od_szczura.wav")
+        subprocess.Popen(f'powershell -c (New-Object Media.SoundPlayer "{sound_path}").PlaySync();')
+        sleep(1.2)
         subprocess.Popen(f'python{w} "{speakFilePath}" "{msg}"')
 
         return "ok"
