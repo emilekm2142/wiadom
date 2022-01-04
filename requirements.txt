@@ -1,2 +1,3 @@
 cherrypy
 pyttsx3
+playsound
