@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import *
 from PIL import Image, ImageTk
 import pyttsx3
+import random
 import cherrypy
 class GUIWindow():
     def __init__(self):
@@ -25,9 +26,9 @@ class GUIWindow():
         # x = (ws / 2) - (w / 2)
         # y = (hs / 2) - (h / 2)
         # root.geometry('+%d+%d' % (x, y))
-
+        random_color = random.choice(['#EE3B3B', '#FFC300', '#DAF7A6', '#FF5733', '#C70039', '#900C3F', '#581845', '#28A745'])
         root.geometry('492x138')
-        root.configure(background='#EE3B3B')
+        root.configure(background=random_color)
         root.title('Wiadom.')
 
         # First, we create a canvas to put the picture on
