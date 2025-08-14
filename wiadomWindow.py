@@ -110,29 +110,38 @@ class GUIWindow():
         # This is the section of code which creates the a label
         Label(root, text=msg, bg='#F0F8FF', font=('Comic Sans MS', 12, 'normal')).place(x=110, y=55)
 
-        # Response buttons
-        def ok_response():
-            self.send_response('ok')
-            root.destroy()
-            
-        def not_ok_response():
-            self.send_response('not_ok')
-            root.destroy()
-
-        # File open button (only for file notifications)
-        if is_file_notification and filename:
-            def open_file_action():
-                self.open_file(filename)
+        # Different button layouts based on message type
+        if is_sticky_note:
+            # Sticky notes only have a "Got it!" button
+            def got_it_response():
                 root.destroy()
             
-            Button(root, text='📂 Open File', bg='#87CEEB', font=('arial', 12, 'bold'), 
-                   command=open_file_action).place(x=110, y=140)
+            Button(root, text='📌 Got it!', bg='#FFD700', font=('arial', 16, 'bold'), 
+                   command=got_it_response).place(x=180, y=100)
+        else:
+            # Regular messages and file notifications have response buttons
+            def ok_response():
+                self.send_response('ok')
+                root.destroy()
+                
+            def not_ok_response():
+                self.send_response('not_ok')
+                root.destroy()
 
-        Button(root, text='👌', bg='#90EE90', font=('arial', 14, 'bold'), 
-               command=ok_response).place(x=110, y=100)
-        
-        Button(root, text='🚫', bg='#FFB6C1', font=('arial', 14, 'bold'), 
-               command=not_ok_response).place(x=250, y=100)
+            # File open button (only for file notifications)
+            if is_file_notification and filename:
+                def open_file_action():
+                    self.open_file(filename)
+                    root.destroy()
+                
+                Button(root, text='📂 Open File', bg='#87CEEB', font=('arial', 12, 'bold'), 
+                       command=open_file_action).place(x=110, y=140)
+
+            Button(root, text='👌', bg='#90EE90', font=('arial', 14, 'bold'), 
+                   command=ok_response).place(x=110, y=100)
+            
+            Button(root, text='🚫', bg='#FFB6C1', font=('arial', 14, 'bold'), 
+                   command=not_ok_response).place(x=250, y=100)
 
         # This is the section of code which creates a button
         Button(root, text='X', bg='#F0F8FF', font=('arial', 12, 'normal'), command=lambda: root.destroy()).place(x=452, y=1)

@@ -11,8 +11,14 @@
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
         }
 
         @keyframes gradientShift {
@@ -38,6 +44,14 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 5px;
+                border-radius: 15px;
+            }
+        }
+
         h1 {
             text-align: center;
             color: #333;
@@ -55,6 +69,14 @@
             border: 3px solid #ddd;
             border-radius: 10px;
             font-family: 'Comic Sans MS', cursive;
+        }
+
+        @media (max-width: 768px) {
+            input[type="text"] {
+                width: 90%;
+                padding: 12px;
+                font-size: 16px;
+            }
         }
 
         button {
@@ -383,12 +405,119 @@
             margin-top: 5px;
             color: #333;
         }
+
+        .preset-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            border: 2px solid #ff6b6b;
+        }
+
+        .preset-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 12px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin: 0;
+        }
+
+        .preset-btn:hover {
+            background: linear-gradient(45deg, #ff5252, #ff7575);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .preset-buttons {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+            
+            .preset-btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .selection-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            select {
+                min-width: 120px;
+            }
+            
+            button {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            textarea {
+                width: 95%;
+            }
+            
+            .chat-history {
+                max-height: 300px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .preset-btn {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>🚀 Brother Message System 🚀</h1>
+
+        <div class="preset-section">
+            <h2>⚡ Quick Messages</h2>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="sendPreset('Obiad gotowy!')">🍽️ Obiad gotowy!</button>
+                <button class="preset-btn" onclick="sendPreset('Do mamy hoć!')">👩 Do mamy hoć!</button>
+                <button class="preset-btn" onclick="sendPreset('Chodź tutaj!')">👋 Chodź tutaj!</button>
+                <button class="preset-btn" onclick="sendPreset('Sprzątaj pokój!')">🧹 Sprzątaj pokój!</button>
+                <button class="preset-btn" onclick="sendPreset('Wyłącz komputer!')">💻 Wyłącz komputer!</button>
+                <button class="preset-btn" onclick="sendPreset('Idź spać!')">😴 Idź spać!</button>
+                <button class="preset-btn" onclick="sendPreset('Zrób zadania!')">📚 Zrób zadania!</button>
+                <button class="preset-btn" onclick="sendPreset('Przyjdź na dół!')">⬇️ Przyjdź na dół!</button>
+            </div>
+        </div>
 
         <div class="input-section">
             <input type="text" id="msg" placeholder="Type your message to your brother...">
@@ -771,6 +900,12 @@
                     console.log("Clear history error:", error);
                     document.getElementById("chatHistory").innerHTML = "❌ Failed to clear chat history!";
                 });
+        }
+
+        // Preset message function
+        function sendPreset(message) {
+            document.getElementById("msg").value = message;
+            send();
         }
 
         // Allow Enter key to send message
