@@ -54,6 +54,10 @@ class Wiadom(object):
         if 'obiad' in msg: 
             play_sound("moze_bys_cos_przekasil_sir.wav")
         subprocess.Popen(f'python{w} "{speakFilePath}" "{msg}"')
+        
+        # Log the message
+        self.log_message("MESSAGE", msg, f"Picture: {selected_picture}, Sound: {selected_sound}")
+        
         return "ok"
     
     @cherrypy.expose
@@ -62,7 +66,36 @@ class Wiadom(object):
         if cherrypy.request.method == 'POST':
             input_json = cherrypy.request.json
             self.latest_response = input_json.get('response')
+            
+            # Log the brother's response
+            response_text = "👌 OK HAND" if self.latest_response == 'ok' else "🚫 NOT OK HAND"
+            self.log_message("RESPONSE", response_text)
+            
             return "ok"
+        return "method not allowed"
+    
+    @cherrypy.expose
+    def get_chat_history(self):
+        log_file = os.path.join(p, 'chat_history.txt')
+        try:
+            if os.path.exists(log_file):
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    return f.read()
+            else:
+                return ""
+        except Exception as e:
+            return f"Error reading chat history: {e}"
+    
+    @cherrypy.expose
+    def clear_chat_history(self):
+        if cherrypy.request.method == 'POST':
+            log_file = os.path.join(p, 'chat_history.txt')
+            try:
+                if os.path.exists(log_file):
+                    os.remove(log_file)
+                return "Chat history cleared successfully"
+            except Exception as e:
+                return f"Error clearing chat history: {e}"
         return "method not allowed"
     
     @cherrypy.expose
@@ -93,7 +126,7 @@ class Wiadom(object):
         return {"sounds": sounds}
     
     @cherrypy.expose
-    def upload_file(self, file_upload=None):
+    def upload_file(self, file_upload=None, auto_open='false'):
         if file_upload is None or not hasattr(file_upload, 'filename'):
             return "No file uploaded"
         
@@ -119,13 +152,33 @@ class Wiadom(object):
                     break
                 f.write(data)
         
-        # Show popup notification
-        wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
-        picturesPath = p
-        message = f"📁 File received: {file_upload.filename}"
+        # Check if auto-open is requested
+        should_auto_open = auto_open.lower() == 'true'
         
-        subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
-        play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+        if should_auto_open:
+            # Auto-open the file without showing popup
+            try:
+                os.startfile(file_path)
+                # Still play a sound to notify
+                play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+            except Exception as e:
+                print(f"Failed to auto-open file: {e}")
+                # If auto-open fails, show popup as fallback
+                wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
+                picturesPath = p
+                message = f"📁 File received: {file_upload.filename}"
+                subprocess.Popen(f'python "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
+                play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+        else:
+            # Show popup notification as usual
+            wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
+            picturesPath = p
+            message = f"📁 File received: {file_upload.filename}"
+            subprocess.Popen(f'python "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
+            play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+        
+        # Log the file upload
+        self.log_message("FILE", file_upload.filename, f"Auto-open: {should_auto_open}")
         
         return f"File uploaded successfully: {os.path.basename(file_path)}"
     
@@ -167,6 +220,39 @@ class Wiadom(object):
         update_thread.start()
         
         return "System update initiated! Restarting..."
+    
+    @cherrypy.expose
+    def sticky_note(self, note_text='', note_color='yellow'):
+        if not note_text.strip():
+            return "No note text provided"
+        
+        # Create sticky note window
+        wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
+        picturesPath = p
+        message = f"📝 Sticky Note: {note_text}"
+        
+        subprocess.Popen(f'python "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random" "{note_color}"')
+        play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+        
+        # Log the sticky note
+        self.log_message("STICKY_NOTE", note_text, note_color)
+        
+        return "Sticky note sent!"
+    
+    def log_message(self, msg_type, content, extra_data=""):
+        import datetime
+        log_file = os.path.join(p, 'chat_history.txt')
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        with open(log_file, 'a', encoding='utf-8') as f:
+            if msg_type == "MESSAGE":
+                f.write(f"[{timestamp}] MESSAGE: {content} | Response: {extra_data}\n")
+            elif msg_type == "FILE":
+                f.write(f"[{timestamp}] FILE: {content} | Auto-open: {extra_data}\n")
+            elif msg_type == "STICKY_NOTE":
+                f.write(f"[{timestamp}] STICKY_NOTE: {content} | Color: {extra_data}\n")
+            elif msg_type == "RESPONSE":
+                f.write(f"[{timestamp}] BROTHER_RESPONSE: {content}\n")
 
 # Function to run on a separate thread every 5 hours
 def periodic_task1():

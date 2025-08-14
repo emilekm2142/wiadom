@@ -55,12 +55,20 @@ class GUIWindow():
     def open_window(self, msg, imagesPath, selectedPic='random'):
         if len(sys.argv) > 3:
             selectedPic = sys.argv[3]
+        
+        # Check for sticky note color parameter
+        note_color = 'yellow'  # default
+        if len(sys.argv) > 4:
+            note_color = sys.argv[4]
+            
         chosenPic = self.get_selected_pic(imagesPath, selectedPic)
         print(f"Using picture: {chosenPic}")
         
-        # Check if this is a file notification
+        # Check if this is a file notification or sticky note
         is_file_notification = msg.startswith("📁 File received:")
+        is_sticky_note = msg.startswith("📝 Sticky Note:")
         filename = None
+        
         if is_file_notification:
             # Extract filename from message
             filename = msg.replace("📁 File received: ", "")
@@ -68,13 +76,25 @@ class GUIWindow():
         root = Tk()
 
         # This is the section of code which creates the main window
-        random_color = random.choice(['#EE3B3B', '#FFC300', '#DAF7A6', '#FF5733', '#C70039', '#900C3F', '#581845', '#28A745'])
+        if is_sticky_note:
+            # Use sticky note colors
+            color_map = {
+                'yellow': '#FFFF99',
+                'pink': '#FFB6C1', 
+                'blue': '#ADD8E6',
+                'green': '#90EE90',
+                'orange': '#FFD700'
+            }
+            window_color = color_map.get(note_color, '#FFFF99')
+            root.title('📝 Sticky Note')
+        else:
+            window_color = random.choice(['#EE3B3B', '#FFC300', '#DAF7A6', '#FF5733', '#C70039', '#900C3F', '#581845', '#28A745'])
+            root.title('Wiadom.')
         
         # Make window taller if it's a file notification (for the extra button)
         window_height = 220 if is_file_notification else 180
         root.geometry(f'492x{window_height}')
-        root.configure(background=random_color)
-        root.title('Wiadom.')
+        root.configure(background=window_color)
 
         # First, we create a canvas to put the picture on
         pic = Image.open(chosenPic)

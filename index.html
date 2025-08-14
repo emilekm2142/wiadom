@@ -249,6 +249,140 @@
         .update-error {
             color: #dc3545;
         }
+
+        .upload-options {
+            margin: 15px 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .sticky-notes-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            border: 2px dashed #ffd700;
+        }
+
+        .sticky-notes-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .sticky-area {
+            text-align: center;
+        }
+
+        textarea {
+            width: 80%;
+            height: 80px;
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Comic Sans MS', cursive;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .color-picker {
+            margin: 15px 0;
+        }
+
+        .color-picker label {
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .sticky-status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .history-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            border: 2px solid #9370db;
+        }
+
+        .history-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .history-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .history-button {
+            background: #9370db;
+            margin-right: 10px;
+        }
+
+        .history-button:hover {
+            background: #8a2be2;
+        }
+
+        .clear-button {
+            background: #dc3545;
+        }
+
+        .clear-button:hover {
+            background: #c82333;
+        }
+
+        .chat-history {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .history-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 4px solid #ff6b6b;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+        }
+
+        .history-timestamp {
+            color: #666;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .history-content {
+            margin-top: 5px;
+            color: #333;
+        }
     </style>
 </head>
 
@@ -281,9 +415,34 @@
             <h2>📁 Send File to Brother</h2>
             <div class="file-upload-area">
                 <input type="file" id="fileInput" multiple>
+                <div class="upload-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="autoOpenFile">
+                        🚀 Auto-open file on brother's computer
+                    </label>
+                </div>
                 <button onclick="uploadFile()">Upload File 📤</button>
             </div>
             <div id="uploadStatus" class="upload-status"></div>
+        </div>
+
+        <div class="sticky-notes-section">
+            <h2>📝 Sticky Notes</h2>
+            <div class="sticky-area">
+                <textarea id="stickyText" placeholder="Write a sticky note for your brother..."></textarea>
+                <div class="color-picker">
+                    <label>Note Color:</label>
+                    <select id="noteColor">
+                        <option value="yellow">🟡 Yellow</option>
+                        <option value="pink">🩷 Pink</option>
+                        <option value="blue">🔵 Blue</option>
+                        <option value="green">🟢 Green</option>
+                        <option value="orange">🟠 Orange</option>
+                    </select>
+                </div>
+                <button onclick="sendStickyNote()">Send Sticky Note 📝</button>
+            </div>
+            <div id="stickyStatus" class="sticky-status"></div>
         </div>
 
         <div class="update-section">
@@ -293,6 +452,15 @@
                 <button onclick="updateSystem()" class="update-button">Update System 🔄</button>
             </div>
             <div id="updateStatus" class="update-status"></div>
+        </div>
+
+        <div class="history-section">
+            <h2>📜 Chat History</h2>
+            <div class="history-area">
+                <button onclick="loadChatHistory()" class="history-button">Load Chat History 📜</button>
+                <button onclick="clearChatHistory()" class="clear-button">Clear History 🗑️</button>
+            </div>
+            <div id="chatHistory" class="chat-history"></div>
         </div>
 
         <div class="status" id="status">Ready to send messages!</div>
@@ -428,6 +596,7 @@
         function uploadFile() {
             const fileInput = document.getElementById("fileInput");
             const uploadStatus = document.getElementById("uploadStatus");
+            const autoOpenFile = document.getElementById("autoOpenFile").checked;
             
             if (fileInput.files.length === 0) {
                 alert("Please select a file to upload!");
@@ -441,6 +610,7 @@
             Array.from(fileInput.files).forEach((file, index) => {
                 const formData = new FormData();
                 formData.append('file_upload', file);
+                formData.append('auto_open', autoOpenFile ? 'true' : 'false');
                 
                 fetch('/upload_file', {
                     method: 'POST',
@@ -448,7 +618,10 @@
                 })
                 .then(response => response.text())
                 .then(result => {
-                    uploadStatus.textContent = `✅ File uploaded: ${file.name}`;
+                    const statusText = autoOpenFile ? 
+                        `✅ File uploaded and opened: ${file.name}` : 
+                        `✅ File uploaded: ${file.name}`;
+                    uploadStatus.textContent = statusText;
                     uploadStatus.className = "upload-status upload-success";
                     
                     // Clear file input
@@ -502,10 +675,115 @@
                 });
         }
 
+        // Sticky notes function
+        function sendStickyNote() {
+            const stickyText = document.getElementById("stickyText").value;
+            const noteColor = document.getElementById("noteColor").value;
+            const stickyStatus = document.getElementById("stickyStatus");
+            
+            if (!stickyText.trim()) {
+                alert("Please enter a note text!");
+                return;
+            }
+            
+            stickyStatus.textContent = "Sending sticky note...";
+            stickyStatus.className = "sticky-status";
+            
+            const formData = new FormData();
+            formData.append('note_text', stickyText);
+            formData.append('note_color', noteColor);
+            
+            fetch('/sticky_note', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                stickyStatus.textContent = "✅ Sticky note sent!";
+                stickyStatus.className = "sticky-status upload-success";
+                
+                // Clear the textarea
+                document.getElementById("stickyText").value = "";
+                
+                // Auto-clear status after 3 seconds
+                setTimeout(() => {
+                    stickyStatus.textContent = "";
+                    stickyStatus.className = "sticky-status";
+                }, 3000);
+            })
+            .catch(error => {
+                console.log("Sticky note error:", error);
+                stickyStatus.textContent = "❌ Failed to send sticky note!";
+                stickyStatus.className = "sticky-status upload-error";
+            });
+        }
+
+        // Chat history functions
+        function loadChatHistory() {
+            const chatHistory = document.getElementById("chatHistory");
+            
+            chatHistory.innerHTML = "Loading chat history...";
+            
+            fetch('/get_chat_history')
+                .then(response => response.text())
+                .then(data => {
+                    if (data.trim()) {
+                        const lines = data.split('\n').filter(line => line.trim());
+                        let historyHtml = "";
+                        
+                        lines.forEach(line => {
+                            if (line.includes('] ')) {
+                                const parts = line.split('] ');
+                                const timestamp = parts[0].replace('[', '');
+                                const content = parts[1];
+                                
+                                historyHtml += `
+                                    <div class="history-entry">
+                                        <div class="history-timestamp">${timestamp}</div>
+                                        <div class="history-content">${content}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                        
+                        chatHistory.innerHTML = historyHtml || "No chat history found.";
+                    } else {
+                        chatHistory.innerHTML = "No chat history found.";
+                    }
+                })
+                .catch(error => {
+                    console.log("History error:", error);
+                    chatHistory.innerHTML = "❌ Failed to load chat history!";
+                });
+        }
+
+        function clearChatHistory() {
+            if (!confirm("Are you sure you want to clear all chat history? This cannot be undone.")) {
+                return;
+            }
+            
+            fetch('/clear_chat_history', { method: 'POST' })
+                .then(response => response.text())
+                .then(result => {
+                    document.getElementById("chatHistory").innerHTML = "Chat history cleared.";
+                })
+                .catch(error => {
+                    console.log("Clear history error:", error);
+                    document.getElementById("chatHistory").innerHTML = "❌ Failed to clear chat history!";
+                });
+        }
+
         // Allow Enter key to send message
         document.getElementById("msg").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 send();
+            }
+        });
+
+        // Allow Enter key to send sticky note
+        document.getElementById("stickyText").addEventListener("keypress", function (event) {
+            if (event.key === "Enter" && event.ctrlKey) {
+                sendStickyNote();
             }
         });
     </script>
