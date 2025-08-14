@@ -167,14 +167,14 @@ class Wiadom(object):
                 wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
                 picturesPath = p
                 message = f"📁 File received: {file_upload.filename}"
-                subprocess.Popen(f'python "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
+                subprocess.Popen(f'pythonw "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
                 play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
         else:
             # Show popup notification as usual
             wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
             picturesPath = p
             message = f"📁 File received: {file_upload.filename}"
-            subprocess.Popen(f'python "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
+            subprocess.Popen(f'pythonw "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
             play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
         
         # Log the file upload
