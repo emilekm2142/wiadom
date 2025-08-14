@@ -450,52 +450,104 @@
 
         @media (max-width: 768px) {
             .preset-buttons {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 8px;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 15px;
             }
             
             .preset-btn {
-                padding: 10px 12px;
-                font-size: 12px;
+                padding: 18px 15px;
+                font-size: 16px;
+                min-height: 60px;
             }
             
             .selection-row {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
             
             select {
-                min-width: 120px;
+                min-width: 150px;
+                padding: 15px;
+                font-size: 16px;
             }
             
             button {
                 margin-left: 0;
-                margin-top: 10px;
+                margin-top: 15px;
                 width: 100%;
+                padding: 18px 25px;
+                font-size: 18px;
+                min-height: 60px;
             }
             
             textarea {
                 width: 95%;
+                padding: 15px;
+                font-size: 16px;
+                min-height: 100px;
+            }
+            
+            input[type="file"] {
+                padding: 15px;
+                font-size: 16px;
             }
             
             .chat-history {
                 max-height: 300px;
+                font-size: 16px;
             }
             
             h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
+                font-size: 28px;
+                margin-bottom: 25px;
+            }
+            
+            h2 {
+                font-size: 22px;
+            }
+            
+            .checkbox-label {
+                font-size: 16px;
+                gap: 12px;
+            }
+            
+            input[type="checkbox"] {
+                transform: scale(1.5);
             }
         }
 
         @media (max-width: 480px) {
             .preset-buttons {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
             
             .preset-btn {
-                font-size: 14px;
-                padding: 12px;
+                font-size: 18px;
+                padding: 20px;
+                min-height: 70px;
+            }
+            
+            button {
+                font-size: 20px;
+                padding: 20px 25px;
+                min-height: 70px;
+            }
+            
+            input[type="text"] {
+                font-size: 18px;
+                padding: 18px;
+            }
+            
+            textarea {
+                font-size: 18px;
+                padding: 18px;
+                min-height: 120px;
+            }
+            
+            select {
+                font-size: 18px;
+                padding: 18px;
             }
         }
     </style>
