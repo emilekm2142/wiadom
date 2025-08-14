@@ -27,16 +27,52 @@ class GUIWindow():
         except:
             pass  # If server is not running, just ignore
 
+    def open_file(self, filename):
+        import os
+        import subprocess
+        downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        file_path = os.path.join(downloads_path, filename)
+        
+        # Check if file exists
+        if os.path.exists(file_path):
+            # Open file with default application
+            os.startfile(file_path)
+        else:
+            # Try to find the file with a counter suffix
+            name, ext = os.path.splitext(filename)
+            counter = 1
+            while counter <= 10:  # Check up to 10 variations
+                alt_filename = f"{name}_{counter}{ext}"
+                alt_path = os.path.join(downloads_path, alt_filename)
+                if os.path.exists(alt_path):
+                    os.startfile(alt_path)
+                    return
+                counter += 1
+            
+            # If file not found, open Downloads folder
+            os.startfile(downloads_path)
+
     def open_window(self, msg, imagesPath, selectedPic='random'):
         if len(sys.argv) > 3:
             selectedPic = sys.argv[3]
         chosenPic = self.get_selected_pic(imagesPath, selectedPic)
         print(f"Using picture: {chosenPic}")
+        
+        # Check if this is a file notification
+        is_file_notification = msg.startswith("📁 File received:")
+        filename = None
+        if is_file_notification:
+            # Extract filename from message
+            filename = msg.replace("📁 File received: ", "")
+        
         root = Tk()
 
         # This is the section of code which creates the main window
         random_color = random.choice(['#EE3B3B', '#FFC300', '#DAF7A6', '#FF5733', '#C70039', '#900C3F', '#581845', '#28A745'])
-        root.geometry('492x180')  # Made taller for buttons
+        
+        # Make window taller if it's a file notification (for the extra button)
+        window_height = 220 if is_file_notification else 180
+        root.geometry(f'492x{window_height}')
         root.configure(background=random_color)
         root.title('Wiadom.')
 
@@ -62,6 +98,15 @@ class GUIWindow():
         def not_ok_response():
             self.send_response('not_ok')
             root.destroy()
+
+        # File open button (only for file notifications)
+        if is_file_notification and filename:
+            def open_file_action():
+                self.open_file(filename)
+                root.destroy()
+            
+            Button(root, text='📂 Open File', bg='#87CEEB', font=('arial', 12, 'bold'), 
+                   command=open_file_action).place(x=110, y=140)
 
         Button(root, text='👌', bg='#90EE90', font=('arial', 14, 'bold'), 
                command=ok_response).place(x=110, y=100)
