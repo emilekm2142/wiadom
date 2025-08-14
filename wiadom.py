@@ -17,6 +17,7 @@ import json
 p = Path(os.path.abspath(__file__)).parent
 w = 'w'
 def play_sound(filename):
+    return
     sound_path = os.path.join(p, f"sounds/{filename}")
     subprocess.Popen(f'powershell -c (New-Object Media.SoundPlayer "{sound_path}").PlaySync();', shell=True)
 class Wiadom(object):
@@ -46,7 +47,7 @@ class Wiadom(object):
         else:
             selected_sound = sound
             
-        subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{msg}" "{picturesPath}" "{selected_picture}"')
+        subprocess.Popen(f'python "{wiadomWindowFilePath}" "{msg}" "{picturesPath}" "{selected_picture}"')
         play_sound(selected_sound)
       
         sleep(1.2)
