@@ -137,10 +137,7 @@ class Wiadom(object):
             import time
             time.sleep(2)  # Give time for response to be sent
             
-            # Stop the server gracefully
-            cherrypy.engine.exit()
-            
-            # Run git pull
+            # Run git pull first
             try:
                 result = subprocess.run(['git', 'pull', 'origin', 'master'], 
                                       cwd=p, capture_output=True, text=True)
@@ -150,10 +147,20 @@ class Wiadom(object):
             except Exception as e:
                 print(f"Git pull failed: {e}")
             
-            # Restart the application
-            python_exe = sys.executable
-            script_path = os.path.join(p, 'wiadom.py')
-            subprocess.Popen([python_exe, script_path])
+            # Create a batch file to restart the application
+            restart_script = os.path.join(p, 'restart_wiadom.bat')
+            with open(restart_script, 'w') as f:
+                f.write('@echo off\n')
+                f.write('timeout /t 3 /nobreak >nul\n')  # Wait 3 seconds
+                f.write(f'cd /d "{p}"\n')
+                f.write('pythonw wiadom.py\n')
+                f.write('del "%~f0"\n')  # Delete the batch file after running
+            
+            # Start the restart script
+            subprocess.Popen([restart_script], shell=True)
+            
+            # Stop the server
+            cherrypy.engine.exit()
         
         # Start update in background thread
         update_thread = threading.Thread(target=do_update, daemon=True)
