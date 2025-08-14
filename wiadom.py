@@ -91,6 +91,75 @@ class Wiadom(object):
             for ext in ['*.wav', '*.mp3']:
                 sounds.extend([os.path.basename(f) for f in glob.glob(os.path.join(sounds_dir, ext))])
         return {"sounds": sounds}
+    
+    @cherrypy.expose
+    def upload_file(self, file_upload=None):
+        if file_upload is None or not hasattr(file_upload, 'filename'):
+            return "No file uploaded"
+        
+        # Get Downloads folder path
+        downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        
+        # Save the uploaded file
+        file_path = os.path.join(downloads_path, file_upload.filename)
+        
+        # Handle duplicate filenames
+        counter = 1
+        original_path = file_path
+        while os.path.exists(file_path):
+            name, ext = os.path.splitext(original_path)
+            file_path = f"{name}_{counter}{ext}"
+            counter += 1
+        
+        # Write the file
+        with open(file_path, 'wb') as f:
+            while True:
+                data = file_upload.file.read(8192)
+                if not data:
+                    break
+                f.write(data)
+        
+        # Show popup notification
+        wiadomWindowFilePath = os.path.join(p, 'wiadomWindow.py')
+        picturesPath = p
+        message = f"📁 File received: {file_upload.filename}"
+        
+        subprocess.Popen(f'python{w} "{wiadomWindowFilePath}" "{message}" "{picturesPath}" "random"')
+        play_sound(random.choice(['wiadomosc_od_twojego_doradcy.wav', 'wiadomosc_od_szczura.wav']))
+        
+        return f"File uploaded successfully: {os.path.basename(file_path)}"
+    
+    @cherrypy.expose
+    def update_system(self):
+        import threading
+        
+        def do_update():
+            import time
+            time.sleep(2)  # Give time for response to be sent
+            
+            # Stop the server gracefully
+            cherrypy.engine.exit()
+            
+            # Run git pull
+            try:
+                result = subprocess.run(['git', 'pull', 'origin', 'master'], 
+                                      cwd=p, capture_output=True, text=True)
+                print(f"Git pull result: {result.stdout}")
+                if result.stderr:
+                    print(f"Git pull errors: {result.stderr}")
+            except Exception as e:
+                print(f"Git pull failed: {e}")
+            
+            # Restart the application
+            python_exe = sys.executable
+            script_path = os.path.join(p, 'wiadom.py')
+            subprocess.Popen([python_exe, script_path])
+        
+        # Start update in background thread
+        update_thread = threading.Thread(target=do_update, daemon=True)
+        update_thread.start()
+        
+        return "System update initiated! Restarting..."
 
 # Function to run on a separate thread every 5 hours
 def periodic_task1():
